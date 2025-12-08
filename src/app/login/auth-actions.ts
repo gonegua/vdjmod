@@ -1,14 +1,15 @@
 // src/actions/auth-actions.tsx
 'use server'
 
-import { headers, cookies } from 'next/headers'
+import { headers } from 'next/headers'
 import { createServerClient } from '@/utils/supabase'
 
 export async function signIn(formData: FormData) {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
-  const cookieStore = cookies()
-  const supabase = createServerClient(cookieStore)
+
+  // createServerClient SIN argumentos (como está tipado en tu proyecto)
+  const supabase = createServerClient()
 
   const { error } = await supabase.auth.signInWithPassword({
     email,
@@ -27,8 +28,8 @@ export async function signUp(formData: FormData) {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
   const apodo = formData.get('apodo') as string
-  const cookieStore = cookies()
-  const supabase = createServerClient(cookieStore)
+
+  const supabase = createServerClient()
 
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -58,7 +59,10 @@ export async function signUp(formData: FormData) {
   ])
 
   if (perfilError) {
-    return { error: 'Registro exitoso, pero falló al crear perfil: ' + perfilError.message }
+    return {
+      error:
+        'Registro exitoso, pero falló al crear perfil: ' + perfilError.message,
+    }
   }
 
   if (user.identities?.length === 0) {
