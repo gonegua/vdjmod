@@ -1,44 +1,48 @@
 'use client'
 
-import { MoonIcon, SunIcon } from '@radix-ui/react-icons'
 import { useTheme } from 'next-themes'
-import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { useEffect, useState } from 'react'
+import { Moon, Sun } from 'lucide-react'
 
-type ThemeToggleProps = {
-  side?: 'left' | 'top' | 'right' | 'bottom'
-}
+export default function ThemeToggle() {
+  const { resolvedTheme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
 
-const ThemeToggle = ({ side }: ThemeToggleProps) => {
-  const { setTheme } = useTheme()
+  // 1) Efecto para marcar que el componente está montado
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // 2) Guardar el tema en una cookie cada vez que cambie
+  useEffect(() => {
+    if (!resolvedTheme) return
+
+    // 1 año de duración (31536000 segundos)
+    document.cookie = `theme=${resolvedTheme}; path=/; max-age=31536000; SameSite=Lax`
+  }, [resolvedTheme])
+
+  // Después de declarar todos los hooks ya podemos condicionar el render
+  if (!mounted) return null
+
+  const isLight = resolvedTheme === 'light'
+
+  const handleClick = () => {
+    setTheme(isLight ? 'dark' : 'light')
+  }
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon">
-          <SunIcon className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-          <MoonIcon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-          <span className="sr-only">Toggle theme</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" side={side}>
-        <DropdownMenuItem onClick={() => setTheme('light')}>
-          Light
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme('dark')}>
-          Dark
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme('system')}>
-          System
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <button
+      onClick={handleClick}
+      className="inline-flex items-center justify-center rounded-md border border-border bg-background px-2 py-2 transition-colors hover:bg-muted"
+      aria-label="Cambiar tema"
+    >
+      {isLight ? (
+        // Modo claro → sol con color ámbar
+        <Sun className="h-5 w-5 text-amber-500" />
+      ) : (
+        // Modo oscuro → luna con azul cielo
+        <Moon className="h-5 w-5 text-sky-300" />
+      )}
+    </button>
   )
 }
-
-export default ThemeToggle

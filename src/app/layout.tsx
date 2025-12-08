@@ -1,5 +1,4 @@
 // src/app/layout.tsx
-
 import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
@@ -8,6 +7,13 @@ import SupabaseProvider from '@/components/SupabaseProvider'
 import { createServerClient } from '@/utils/supabase'
 import { cookies } from 'next/headers'
 import { AuthProvider } from '@/contexts/authContext'
+import { ThemeProvider } from '@/components/ThemeProvider'
+import Footer from '@/components/Footer'
+import CookieBanner from '@/components/CookieBanner'
+
+// ⬇️ NUEVOS IMPORTS PARA MODO TEMPORADA
+import SeasonProvider from '@/components/SeasonProvider'
+import SnowTop from '@/components/SnowTop'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -29,17 +35,29 @@ export default async function RootLayout({
   } = await supabase.auth.getSession()
 
   return (
-    <html lang="es">
+    <html lang="es" suppressHydrationWarning>
       <body className={inter.className}>
-        <SupabaseProvider initialSession={session}>
-        <AuthProvider initialUser={session?.user ?? null}>
-            <Navbar />
-            <main className="max-w-6xl mx-auto p-4">{children}</main>
-          </AuthProvider>
-        </SupabaseProvider>
+        <ThemeProvider>
+          {/* 👇 Aquí envolvemos TODO con SeasonProvider */}
+          <SeasonProvider>
+            <SupabaseProvider initialSession={session}>
+              <AuthProvider initialUser={session?.user ?? null}>
+                <Navbar />
+
+                {/* ❄️ Nieve sutil en la parte superior */}
+                <SnowTop />
+
+                <main className="mx-auto max-w-6xl p-4">{children}</main>
+
+                {/* 🔽 Banner de cookies */}
+                <CookieBanner />
+
+                <Footer />
+              </AuthProvider>
+            </SupabaseProvider>
+          </SeasonProvider>
+        </ThemeProvider>
       </body>
     </html>
   )
 }
-
-

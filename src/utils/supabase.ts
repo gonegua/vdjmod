@@ -1,12 +1,16 @@
+// src/lib/supabase.ts (o donde lo tengas)
+
 import {
   createBrowserClient as browserClient,
   createServerClient as serverClient,
   type CookieOptions,
 } from '@supabase/ssr'
-import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 import { type Session } from '@supabase/auth-helpers-nextjs'
 
+/**
+ * Cliente para el navegador (CSR)
+ */
 export const createBrowserClient = (initialSession: Session | null = null) =>
   browserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -16,47 +20,50 @@ export const createBrowserClient = (initialSession: Session | null = null) =>
         autoRefreshToken: true,
         persistSession: true,
         detectSessionInUrl: true,
-        ...(initialSession && { 
-          // ✅ Esta parte es clave para hidratar la sesión inicial
+        ...(initialSession && {
+          // Hidratar la sesión inicial si viene del servidor
           initialSession,
         }),
       },
-    }
+    },
   )
 
-export const createServerClient = (cookieStore: ReturnType<typeof cookies>) =>
+/**
+ * Cliente para Server Components / Route Handlers / Server Actions (SSR)
+ *
+ * Versión sin `next/headers` para que este archivo pueda usarse
+ * también desde `pages/` sin errores.
+ *
+ * Nota: aquí NO se leen ni escriben cookies de Supabase; la sesión
+ * no se hidrata automáticamente en SSR. Para uso público (sin login SSR)
+ * es suficiente.
+ */
+export const createServerClient = () =>
   serverClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
+        get(_name: string) {
+          // En este helper compartido no leemos cookies
+          return undefined
         },
-        set(name: string, value: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value, ...options })
-          } catch (error) {
-            // The `set` method was called from a Server Component.
-            // This can be ignored if you have middleware refreshing
-            // user sessions.
-          }
+        set(_name: string, _value: string, _options: CookieOptions) {
+          // No-op en este contexto
         },
-        remove(name: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value: '', ...options })
-          } catch (error) {
-            // The `delete` method was called from a Server Component.
-            // This can be ignored if you have middleware refreshing
-            // user sessions.
-          }
+        remove(_name: string, _options: CookieOptions) {
+          // No-op en este contexto
         },
       },
     },
   )
 
+/**
+ * Cliente para middleware (Edge / node middleware.ts)
+ * Sigue usando NextRequest/NextResponse como antes.
+ */
 export const createMiddlewareClient = (request: NextRequest) => {
-  // Create an unmodified response
+  // Respuesta base sin modificar
   let response = NextResponse.next({ request: { headers: request.headers } })
 
   const supabase = serverClient(
@@ -68,7 +75,7 @@ export const createMiddlewareClient = (request: NextRequest) => {
           return request.cookies.get(name)?.value
         },
         set(name: string, value: string, options: CookieOptions) {
-          // If the cookie is updated, update the cookies for the request and response
+          // Si se actualiza la cookie, sincronizar request y response
           request.cookies.set({ name, value, ...options })
           response = NextResponse.next({
             request: { headers: request.headers },
@@ -76,7 +83,7 @@ export const createMiddlewareClient = (request: NextRequest) => {
           response.cookies.set({ name, value, ...options })
         },
         remove(name: string, options: CookieOptions) {
-          // If the cookie is removed, update the cookies for the request and response
+          // Si se elimina la cookie, sincronizar request y response
           request.cookies.set({ name, value: '', ...options })
           response = NextResponse.next({
             request: { headers: request.headers },
