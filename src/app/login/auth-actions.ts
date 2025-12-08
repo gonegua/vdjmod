@@ -1,4 +1,4 @@
-// src/actions/auth-actions.tsx
+// src/app/login/auth-actions.ts
 'use server'
 
 import { headers } from 'next/headers'
@@ -8,7 +8,6 @@ export async function signIn(formData: FormData) {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
 
-  // createServerClient SIN argumentos (como está tipado en tu proyecto)
   const supabase = createServerClient()
 
   const { error } = await supabase.auth.signInWithPassword({
@@ -24,7 +23,10 @@ export async function signIn(formData: FormData) {
 }
 
 export async function signUp(formData: FormData) {
-  const origin = headers().get('origin')
+  // ⬅️ AQUÍ EL CAMBIO IMPORTANTE
+  const headersList = await headers()
+  const origin = headersList.get('origin') ?? ''
+
   const email = formData.get('email') as string
   const password = formData.get('password') as string
   const apodo = formData.get('apodo') as string
@@ -49,7 +51,6 @@ export async function signUp(formData: FormData) {
     return { error: 'No se pudo obtener el usuario recién registrado.' }
   }
 
-  // Insertar perfil personalizado
   const { error: perfilError } = await supabase.from('perfiles').insert([
     {
       id: user.id,
