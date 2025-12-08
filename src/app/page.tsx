@@ -60,7 +60,7 @@ export default async function HomePage({
               href={href}
               className={`rounded border px-3 py-1 text-sm ${
                 isActive
-                  ? 'border-blue-600 bg-blue-600 text-white'
+                  ? 'border-white-500 bg-green-700 text-white'
                   : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-100'
               }`}
             >

@@ -20,31 +20,41 @@ export default function Navbar() {
   if (loading) return null
 
   return (
-    <nav className="bg-gray-900 p-4 text-white">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
-        {/* LOGO + BADGE */}
-        <div className="flex items-center gap-3">
+    <nav className="bg-gray-900 text-white">
+      <div className="relative mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
+        {/* IZQUIERDA: LOGO + LUCES */}
+        <div className="flex shrink-0 items-center gap-1">
           <h1 className="text-xl font-bold">
             <Link href="/" className="logo-mark inline-flex items-center gap-1">
               <span>AA 🎮</span>
             </Link>
           </h1>
 
-          {/* 🎄 Badge “Season” mejor integrado */}
-          <span className="season-badge inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold shadow-md backdrop-blur">
-            <span className="inline-block text-sm">🕯️</span>
+          {/* Badge con luces pegado al logo */}
+          <span className="season-badge inline-flex items-center rounded-full bg-gray-800/80 px-1.5 py-0.5 shadow-md backdrop-blur">
+            <span className="xmas-lights flex items-center gap-0.5">
+              <span className="xmas-light green" />
+              <span className="xmas-light red" />
+              <span className="xmas-light yellow" />
+              <span className="xmas-light blue" />
+            </span>
           </span>
         </div>
 
-        {/* LINKS */}
-        <ul className="flex space-x-6">
+        {/* CENTRO: LINKS SIEMPRE CENTRADOS EN LA PÁGINA */}
+        <ul className="absolute left-1/2 flex -translate-x-[50%] space-x-6">
           {links.map((link) => (
             <li key={link.href}>
               <Link
                 href={link.href}
-                className={`hover:underline ${
-                  pathname === link.href ? 'font-semibold text-primary' : ''
-                }`}
+                className={`
+                  rounded px-2 py-1
+                  ${
+                    pathname === link.href
+                      ? 'border-b-2 border-green-500 font-semibold text-green-400'
+                      : 'hover:underline'
+                  }
+                `}
               >
                 {link.label}
               </Link>
@@ -52,8 +62,8 @@ export default function Navbar() {
           ))}
         </ul>
 
-        {/* TEMA + USER MENU (SIN BOTÓN "INICIAR SESIÓN") */}
-        <div className="flex items-center gap-3">
+        {/* DERECHA: TEMA + USER MENU */}
+        <div className="flex shrink-0 items-center gap-3">
           <ThemeToggle />
 
           {user ? (

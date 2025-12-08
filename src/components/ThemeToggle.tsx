@@ -33,15 +33,34 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={handleClick}
-      className="inline-flex items-center justify-center rounded-md border border-border bg-background px-2 py-2 transition-colors hover:bg-muted"
       aria-label="Cambiar tema"
+      className="
+        inline-flex h-9 w-9 items-center justify-center
+        rounded-lg border border-white/10
+        bg-black/40 text-white
+        shadow-md backdrop-blur-sm
+        transition
+        hover:brightness-125
+      "
     >
       {isLight ? (
-        // Modo claro → sol con color ámbar
-        <Sun className="h-5 w-5 text-amber-500" />
+        // Modo claro → sol amarillo con brillo
+        <Sun
+          className="
+            h-5 w-5
+            text-yellow-300
+            drop-shadow-[0_0_6px_rgba(250,204,21,0.9)] filter
+          "
+        />
       ) : (
-        // Modo oscuro → luna con azul cielo
-        <Moon className="h-5 w-5 text-sky-300" />
+        // Modo oscuro → luna blanca con brillo
+        <Moon
+          className="
+            h-5 w-5
+            text-slate-50
+            drop-shadow-[0_0_6px_rgba(248,250,252,0.9)] filter
+          "
+        />
       )}
     </button>
   )
