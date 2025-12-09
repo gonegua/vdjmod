@@ -26,7 +26,7 @@ export default function Navbar() {
         <div className="flex shrink-0 items-center gap-1">
           <h1 className="text-xl font-bold">
             <Link href="/" className="logo-mark inline-flex items-center gap-1">
-              <span>AA 🎮</span>
+              <span>aA 🎮</span>
             </Link>
           </h1>
 

@@ -1,10 +1,11 @@
 // src/app/page.tsx
-
 import Link from 'next/link'
+import { headers } from 'next/headers'
 import JuegoCard from '@/components/JuegoCard'
 import Buscador from '@/components/Buscador'
 import type { Juego } from '@/types/juego'
 import { getJuegosGlobal } from '@/lib/db/multiSource'
+import { registrarVisitaInicio } from '@/lib/estadisticasInicio'
 
 const JUEGOS_POR_PAGINA = 12
 
@@ -18,6 +19,18 @@ export default async function HomePage({
 }: {
   searchParams: Promise<SearchParams>
 }) {
+  // 🔹 Obtener IP desde los headers (Vercel / proxy)
+  const headersList = await headers()
+  const ipFromForwarded = headersList.get('x-forwarded-for')
+  const ip =
+    ipFromForwarded?.split(',')[0]?.trim() ||
+    headersList.get('x-real-ip') ||
+    null
+
+  // 🔹 Registrar la visita (total + por IP)
+  await registrarVisitaInicio(ip)
+
+  // 🔹 Lógica original de paginación / juegos
   const { page: pageParam = '1', q: query = '' } = await searchParams
   const page = Number.parseInt(pageParam, 10) || 1
 
