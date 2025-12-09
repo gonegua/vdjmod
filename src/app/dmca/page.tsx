@@ -20,7 +20,7 @@ export default function DmcaPage() {
       </header>
 
       <p>
-        <strong>aa.vercel.app</strong> (en adelante, &quot;aA&quot;) es un
+        <strong>juegoversollasho.vercel.app/</strong> (en adelante, &quot;aA&quot;) es un
         índice público neutral de información sobre videojuegos y un agregador
         de enlaces disponibles abiertamente en Internet. El Sitio{' '}
         <strong>
